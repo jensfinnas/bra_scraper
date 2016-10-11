@@ -1,0 +1,176 @@
+# -*- coding: utf-8 -*-
+"""Simple commandline user interface.
+   Originally from www.protokollen.net
+"""
+
+import sys
+import argparse
+import argcomplete
+import logging
+
+FORMAT = '%(asctime)s %(levelname)s: %(message)s'
+logging.basicConfig(format=FORMAT)
+
+
+class TerminalColors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
+class Interface:
+    """This class represents the common user interface shared amongst
+       ProtoKollen scripts.
+       It handles error message formatting, alerts, and the like.
+    """
+
+    NORMAL_MODE = 0
+    DRY_MODE = 1
+
+    predefined_args = {
+        "loglevel": {
+            "short": "-l", "long": "--loglevel",
+            "dest": "loglevel",
+            "type": int,
+            "help": "Log level. " +
+                    "5=only critical, 4=errors, 3=warnings, 2=info, 1=debug.",
+            "choices": (1, 2, 3, 4, 5),
+            "default": 2
+        },
+        "dryrun": {
+            "short": "-d", "long": "--dry",
+            "dest": "dryrun",
+            "action": 'store_true',
+            "default": False,
+            "help": "Dry run. Do not upload files, or put stuff in databases."
+        },
+        "overwrite": {
+            "short": "-o", "long": "--overwrite",
+            "action": "store_true",
+            "default": False,
+            "dest": "overwrite",
+            "help": "Should we overwrite existing files and database entries?"
+        },
+        "tempdir": {
+            "short": "-m", "long": "--tempdir",
+            "type": str,
+            "default": "temp",
+            "dest": "tempdir",
+            "help": "Where should we put temporarily downloaded files?"
+        },
+        "limit": {
+            "short": "-i", "long": "--limit",
+            "dest": "limit",
+            "type": int,
+            "help": "Maximum number of operations."
+        }
+    }
+
+    def __init__(self, name, description, commandline_args=[]):
+        """Command line arguments can be a list of shortcuts from
+        `predefined_args`, or a list of dictionaries. Arguments can also
+        be put in a file named SCRIPTNAME_args.py, e.g. `harvest_args.py`.
+        """
+        self.parser = argparse.ArgumentParser(description)
+
+        # Add one ubiqitous command line arguments
+        commandline_args += ["loglevel"]
+
+        # Check for FILENAME_args.py file
+        import __main__
+        import os
+        try:
+            filename = os.path.basename(__main__.__file__)
+            filename = os.path.splitext(filename)[0]
+            args_from_file = __import__(filename + "_args")
+            commandline_args += args_from_file.args
+        except ImportError:
+            pass
+
+        # Add all the command line arguments
+        for c in commandline_args:
+            # cCheck for shortcuts used
+            if isinstance(c, str):
+                c = self.predefined_args[c]
+            self.parser.add_argument(
+                c.pop("short", None),
+                c.pop("long", None),
+                **c)
+
+        argcomplete.autocomplete(self.parser)
+        self.args = self.parser.parse_args()
+
+        self.logger = logging.getLogger(name)
+
+        # https://docs.python.org/2/library/logging.html#levels
+        self.logger.setLevel(self.args.loglevel * 10)
+
+        self.executionMode = self.NORMAL_MODE
+
+    # Convenience shortcuts to logger methods
+    def log(self, msg, mode=logging.INFO):
+        self.logger.log(mode, msg)
+
+    def debug(self, msg, *args, **kwargs):
+        self.logger.debug(msg, *args, **kwargs)
+
+    def info(self, msg, *args, **kwargs):
+        self.logger.info(msg, *args, **kwargs)
+
+    def warning(self, msg, *args, **kwargs):
+        cmsg = TerminalColors.WARNING + msg + TerminalColors.ENDC
+        self.logger.warning(cmsg, *args, **kwargs)
+
+    def error(self, msg, *args, **kwargs):
+        cmsg = TerminalColors.FAIL + msg + TerminalColors.ENDC
+        self.logger.error(cmsg, *args, **kwargs)
+
+    def critical(self, msg, *args, **kwargs):
+        cmsg = TerminalColors.FAIL + TerminalColors.BOLD + \
+            msg + TerminalColors.ENDC
+        self.logger.critical(cmsg, *args, **kwargs)
+
+    def dry_mode(self):
+        return bool(self.executionMode)
+
+    def ask_if_continue(self, default="no", message="Really continue?"):
+        """Ask a yes/no question via raw_input() and return their answer
+
+           Command line implementation from
+           http://code.activestate.com/recipes/577058/
+        """
+        valid = {"yes": True, "y": True, "ja": True,
+                 "no": False, "n": False, "nej": False}
+        if default is None:
+            prompt = " [y/n] "
+        elif default == "yes":
+            prompt = " [Y/n] "
+        elif default == "no":
+            prompt = " [y/N] "
+        else:
+            raise ValueError("invalid default answer: '%s'" % default)
+
+        while 1:
+            sys.stdout.write(message + prompt)
+            choice = raw_input().lower()
+            if default is not None and choice == '':
+                return valid[default]
+            elif choice in valid.keys():
+                return valid[choice]
+            else:
+                sys.stdout.write("Please respond with 'yes' or 'no' "
+                                 "(or 'y' or 'n').\n")
+
+    def exit(self):
+        import sys
+        sys.exit()
+
+if __name__ == "__main__":
+    print "This module is only intended to be called from other scripts."
+    import sys
+    sys.exit()
