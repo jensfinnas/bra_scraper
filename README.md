@@ -25,6 +25,7 @@ print scraper.topics
 Explore a topic.
 
 ```python
+
 # Get a topic by name (or url)
 topic = scraper.topic(u"Månads- och kvartalsvis - Land och län 1975-2014, land och region 2015-")
 
@@ -33,11 +34,12 @@ print topic.regions
 
 # Get available crimes
 print topic.crimes
+
 ```
 
 Make query.
 
-```
+```python
 # Query date range
 data = topic.query(period_start="2016-01-01", period_end="2016-06-30")
 
@@ -48,7 +50,7 @@ data = topic.query(regions=["Bjuv kommun"], crimes=[u"Våldsbrott"])
 
 Save results.
 
-```
+```python
 data.to_csv("my_data_dump.csv")
 ```
 
