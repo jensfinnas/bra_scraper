@@ -7,7 +7,7 @@ class Dataset(list):
         Basically a wrapper around Python's native list class.
     """
     def to_csv(self, path):
-        logger.info(u"Writing to %s" % path)
+        logger.info(u"Writing to {}".format(unicode(path,"utf-8")))
         return self.dataframe.to_csv(path, encoding="utf-8")
 
     @property
