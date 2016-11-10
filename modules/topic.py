@@ -99,7 +99,7 @@ class Topic(Surfer):
             # Filter by regions in query
             if (regions=="*" or x.label in regions) and 
             # Remove ceased
-            (not x.ceased or ignore_ceased)
+            (not (x.ceased and ignore_ceased))
             ]
         crime_ids = [x.id for x in self.crimes 
             if (crimes=="*" or x.label in crimes)]
