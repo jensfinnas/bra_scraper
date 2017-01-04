@@ -97,7 +97,6 @@ class Dimension(Surfer):
 
         if len(_parts) == 4:
             label = _parts[3]
-            import pdb;pdb.set_trace()
         else:
             label = _parts[1].replace("\\xA0","")
         
