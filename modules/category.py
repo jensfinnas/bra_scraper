@@ -26,6 +26,16 @@ class Category(object):
     @parent.setter
     def parent(self, value):
         self._parent = value
+
+    @property
+    def ceased(self):
+        """ Has this region/crime ceases to exist?
+            returns (bool)
+        """
+        # TODO: Take into account if the region is relevant
+        # in the timepoint for the datapoint.
+        return u"upphör" in self.label
+
     
     def __repr__(self):
         return u"<Category: {}>".format(self.label).encode("utf-8")
@@ -42,14 +52,7 @@ QUARTER_MONTHS = {
 }
 
 class Region(Category):
-    @property
-    def ceased(self):
-        """ Has this regions ceases to exist?
-            returns (bool)
-        """
-        # TODO: Take into account if the region is relevant
-        # in the timepoint for the datapoint.
-        return u"upphörde" in self.label
+    pass
     
 
 class Period(Category):

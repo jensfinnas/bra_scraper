@@ -45,38 +45,43 @@ class Topic(Surfer):
     
     @property
     def regions(self):
-        if not self._html:
-            self._fetch_html()
-
-        if not self._regions:
-            self._regions = Regions(html=self._html)
-
-        return self._regions.categories
+        return self.dimension("regions").categories
 
     @property
     def crimes(self):
-        if not self._html:
-            self._fetch_html()
-
-        if not self._crimes:
-            self._crimes = Crimes(html=self._html)
-            
-        return self._crimes.categories
+        return self.dimension("crimes").categories
 
     @property
     def periods(self):
+        return self.dimension("periods").categories
+
+    def dimension(self, name):
+        """ Get a dimension by name
+
+            :param name: crimes|regions|periods
+        """
+        dim_classes = {
+            "crimes": Crimes,
+            "regions": Regions,
+            "periods": Periods
+        }
+        if name not in dim_classes.keys():
+            raise Exception("{} is not a valid dimension. Options are {}."\
+                    .format(name, ",".join(dim_classes.keys())))
+        
         if not self._html:
             self._fetch_html()
 
-        if not self._periods:
-            self._periods = Periods(html=self._html)
-            
-        return self._periods.categories
+        if not getattr(self, "_" + name):
+            dim = dim_classes[name](html=self._html)
+            setattr(self, "_" + name, dim)
 
-    
+        return getattr(self, "_" + name)
+
 
     def query(self, regions="*", crimes="*", period_start="1900-01-01", 
-            period_end="2999-1-1", ignore_ceased=True):
+            period_end="2999-1-1", ignore_ceased_regions=True,
+            ignore_ceased_crimes=True):
         """ Get the data for a set of region, crime and period ids.
             A date range from 2016-03-01 to 2016-04-01 will include
             data for March and Q1 2016, but not April.
@@ -85,7 +90,8 @@ class Topic(Surfer):
             :param crimes (list): Crime names to be included.
             :param period_start (str|datetime): First timepoint to be included.
             :param period_end (str|datetime): Last timepoint to be included.
-            :param ignore_ceased (bool): Skip regions that no longer exist
+            :param ignore_ceased_regions (bool): Skip regions that no longer exist
+            :param ignore_ceased_crimes (bool): Skip crimes that no longer exist
         """
         if isinstance(period_start, str):
             period_start = datetime.strptime(period_start, "%Y-%m-%d")
@@ -99,11 +105,29 @@ class Topic(Surfer):
             # Filter by regions in query
             if (regions=="*" or x.label in regions) and 
             # Remove ceased
-            (not (x.ceased and ignore_ceased))
+            (not (x.ceased and ignore_ceased_regions))
             ]
         crime_ids = [x.id for x in self.crimes 
-            if (crimes=="*" or x.label in crimes)]
-        period_ids = [x.id for x in self.periods if (x.in_range(period_start) and x.period_end <= period_end)]
+            if (crimes=="*" or x.label in crimes) and
+            # Remove ceased
+            (not (x.ceased and ignore_ceased_crimes))
+            ]
+
+        # For 
+        period_ids = [x.id for x in self.periods 
+            if (
+                (
+                    # Pick up yearly and quarterly data
+                    # eg. 2016-12-01 will return:
+                    # - 2016 (whole year)
+                    # - 2016, Q4
+                    # - 2016, December
+                    x.in_range(period_start) 
+                    or 
+                    x.period_start >= period_start
+                ) 
+                and x.period_end <= period_end)]
+        
         # We can query a maximum of 10 000 datapoints at a time.
         threshold = 10000.0
         n_regions = len(region_ids)
@@ -163,6 +187,7 @@ class Topic(Surfer):
         logger.info("Parsed %s datapoints" % len(data))
 
         return Dataset(data)
+
 
     def _get_result_page(self,regions, crimes, periods):
         """ Make a query and return the html of the result page.

@@ -1,10 +1,10 @@
 # encoding: utf-8
 import requests
 import re
+import csvkit as csv
 from modules.surfer import Surfer
 from modules.category import Category, Period, Region
 
-import pdb
 
 class Dimension(Surfer):
     """ A base class for dimensions in the BRÅ database 
@@ -28,6 +28,9 @@ class Dimension(Surfer):
     def categories(self):
         return self._categories.values()
     
+    def list(self):
+        return self.categories
+
     def get(self, id):
         """ Get category by id
             :returns (Category): 
@@ -37,6 +40,26 @@ class Dimension(Surfer):
         except KeyError:
             return None
 
+    def to_csv(self, file_path):
+        """ Store all categories as a csv file
+        """
+        columns = ["id", "label", "parent"]
+        with open(file_path, 'w') as f:
+            writer = csv.writer(f)
+            writer.writerow(columns)
+
+            for category in self.categories:
+                if category.parent:
+                    parent = category.parent.id
+                else:
+                    parent = None
+                row = [ 
+                    category.id,
+                    category.label,
+                    parent,
+                ]
+                writer.writerow(row)
+ 
     def _parse_categories(self, html):
         """ Get categories from HTML code of topic page.
             :param html (str): HTML code of topic page
@@ -72,7 +95,11 @@ class Dimension(Surfer):
         _parts = category_string.split("*")
         id = int(_parts[0])
 
-        label = _parts[1].replace("\\xA0","")
+        if len(_parts) == 4:
+            label = _parts[3]
+            import pdb;pdb.set_trace()
+        else:
+            label = _parts[1].replace("\\xA0","")
         
         if len(_parts) > 2:
             parent_id = int(_parts[2])

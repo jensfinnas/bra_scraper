@@ -44,7 +44,8 @@ def main():
     topic = scraper.topic(topic_name)
     data = topic.query(
         period_start=ui.args.period_start,
-        period_end=ui.args.period_end,)
+        period_end=ui.args.period_end,
+        )
     
     data.to_csv(ui.args.outfile)
 
