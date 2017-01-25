@@ -46,7 +46,7 @@ class BRA(Surfer):
         try:
             if "http" in label_or_url:
                 # Get by url
-                return [x for x in self.topics if x.url == label_or_url and x.level == level][0]
+                return [x for x in self.topics if x.url == label_or_url ][0]
             else:
                 # Get by label
                 return [x for x in self.topics if x.label == label_or_url and x.level == level][0]
