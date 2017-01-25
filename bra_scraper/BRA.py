@@ -1,8 +1,8 @@
 # encoding: utf-8
 import requests
 from lxml import html
-from modules.topic import Topic
-from modules.surfer import Surfer
+from bra_scraper.topic import Topic
+from bra_scraper.surfer import Surfer
 
 
 class BRA(Surfer):

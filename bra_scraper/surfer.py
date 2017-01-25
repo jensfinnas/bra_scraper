@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 import requests
-from modules.logger import logger
+from bra_scraper.logger import logger
 
 BASE_URL = "http://statistik.bra.se/"
 INTERFACE_URL = BASE_URL + "solwebb/action/"

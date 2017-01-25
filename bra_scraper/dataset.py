@@ -1,5 +1,5 @@
 # encoding: utf-8
-from modules.logger import logger
+from bra_scraper.logger import logger
 
 class Dataset(list):
     """ This is where we store the results from the scraper

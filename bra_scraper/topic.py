@@ -4,13 +4,11 @@ from datetime import datetime
 from math import floor
 from lxml import html
 
-from modules.surfer import Surfer
-from modules.dimension import Regions, Crimes, Periods
-from modules.logger import logger
-from modules.utils import parse_value
-from modules.dataset import Dataset
-
-import pdb
+from bra_scraper.surfer import Surfer
+from bra_scraper.dimension import Regions, Crimes, Periods
+from bra_scraper.logger import logger
+from bra_scraper.utils import parse_value
+from bra_scraper.dataset import Dataset
 
 
 class Topic(Surfer):
@@ -252,4 +250,4 @@ class Topic(Surfer):
 
 
     def __repr__(self):
-        return u"<Topic: {}>".format(self.name).encode("utf-8")
+        return u"<Topic: {} ({})>".format(self.label, self.level).encode("utf-8")

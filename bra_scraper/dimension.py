@@ -2,8 +2,8 @@
 import requests
 import re
 import csvkit as csv
-from modules.surfer import Surfer
-from modules.category import Category, Period, Region
+from bra_scraper.surfer import Surfer
+from bra_scraper.category import Category, Period, Region
 
 
 class Dimension(Surfer):

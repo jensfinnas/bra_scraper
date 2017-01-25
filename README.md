@@ -12,7 +12,7 @@ This is a Python module for fetching statistical data about reported crime from 
 Init scraper:
 
 ```python
-from modules.BRA import BRA
+from bra_scraper.BRA import BRA
 scraper = BRA()
 ```
 

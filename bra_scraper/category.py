@@ -4,7 +4,6 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import re
 from copy import deepcopy
-import pdb
 
 class Category(object):
     """ Represents a category in a dimension. Could be a county (if region)
