@@ -10,7 +10,7 @@ with open('requirements.txt') as f:
 setup(name='bra_scraper',
       version='0.1',
       description=u'An interface for fetching statistical data from BRÅ. This is not an official service!',
-      url='http://github.com/jensfinnas/bra_scraper',
+      url='https://github.com/jensfinnas/bra_scraper',
       author='Jens Finnäs',
       author_email='jens.finnas@gmail.com',
       license='MIT',
