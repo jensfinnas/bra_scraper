@@ -67,7 +67,9 @@ class Period(Category):
         period_name = self.label
 
         if period_name[0:2] == u"År":
+            period_name = period_name.replace(u" prel.","")
             year = int(period_name[-4:])
+
             month = 1
         
         elif u"Helår" in period_name:
