@@ -36,17 +36,20 @@ class BRA(Surfer):
 
         return self._topics
 
-    def topic(self, label_or_url):
+    def topic(self, label_or_url, level="brottstyp"):
         """ Get topic by label or url
+            :param label_or_url: Label (e.g "Årsvis - Kommun och storstädernas stadsdelar 1996-")
+                or url (e.g "http://statistik.bra.se/solwebb/action/anmalda/urval/urval?menyid=101")
+            :param level: "brottskod" | "brottstyp"     
             :returns (Topic):
         """
         try:
             if "http" in label_or_url:
                 # Get by url
-                return [x for x in self.topics if x.url == label_or_url][0]
+                return [x for x in self.topics if x.url == label_or_url and x.level == level][0]
             else:
                 # Get by label
-                return [x for x in self.topics if x.label == label_or_url][0]
+                return [x for x in self.topics if x.label == label_or_url and x.level == level][0]
         except IndexError:
             return None
     
