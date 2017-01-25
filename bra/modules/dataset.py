@@ -1,5 +1,4 @@
 # encoding: utf-8
-import pandas as pd
 from modules.logger import logger
 
 class Dataset(list):
@@ -12,6 +11,7 @@ class Dataset(list):
 
     @property
     def dataframe(self):
+        import pandas as pd
         return pd.DataFrame(self.dictlist)
     
 

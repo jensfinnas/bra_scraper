@@ -1,3 +1,2 @@
 requests==2.11.1
 wsgiref==0.1.2
-pandas==0.18.1

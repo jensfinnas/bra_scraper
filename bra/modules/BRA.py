@@ -3,7 +3,6 @@ import requests
 from lxml import html
 from modules.topic import Topic
 from modules.surfer import Surfer
-import pdb
 
 
 class BRA(Surfer):
