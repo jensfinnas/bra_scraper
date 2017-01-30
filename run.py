@@ -3,8 +3,8 @@
 """ Run the scraper against BRÅ
 """
 
-from modules.interface import Interface
-from modules.BRA import BRA
+from bra_scraper.interface import Interface
+from bra_scraper.BRA import BRA
 
 def main():
     """ Entry point when run from command line """
@@ -42,12 +42,12 @@ def main():
     scraper = BRA()
     topic_name = unicode(ui.args.topic, "utf-8")
     topic = scraper.topic(topic_name)
-    data = topic.query(
+    result = topic.query(
         period_start=ui.args.period_start,
         period_end=ui.args.period_end,
         )
     
-    data.to_csv(ui.args.outfile)
+    result.data.to_csv(ui.args.outfile)
 
 
 
