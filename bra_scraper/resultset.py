@@ -21,10 +21,10 @@ class ResultSet(object):
         """
         return self._notes
 
-    def add_data(self, data_to_add):
+    def add_data(self, data):
         """ Append data
         """
-        self._data.append(data_to_add)
+        self._data += data
 
     def add_note(self, category, note):
         """ Add a note to a category.
