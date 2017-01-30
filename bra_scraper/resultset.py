@@ -74,7 +74,8 @@ class Dataset(list):
                 "region_id": row["region"].id,
                 "crime": row["crime"].label,
                 "crime_id": row["crime"].id,
-                "value": row["value"]
+                "value": row["value"],
+                "status": row["status"],
                 })
         return _dictlist
     

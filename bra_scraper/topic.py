@@ -221,15 +221,21 @@ class Topic(Surfer):
             period_id = int(ids[0])
             region_id = int(ids[3])
             crime_id = int(ids[2])
-            # TODO: Handle missing more properly
-            # Now we just store them as None
             value = parse_value(td.text, "integer")
+            status = None
+
+            if td.text == "..":
+                """ In case value is missing, we store 'value' as None
+                    and 'status' as 'missing'
+                """
+                status = "missing"
 
             datapoint = {
                 'period': self._periods.get(period_id),
                 'crime': self._crimes.get(crime_id),
                 'region': self._regions.get(region_id),
                 'value': value,
+                'status': status,
             }
 
             data.append(datapoint)
