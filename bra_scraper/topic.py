@@ -8,7 +8,7 @@ from bra_scraper.surfer import Surfer
 from bra_scraper.dimension import Regions, Crimes, Periods
 from bra_scraper.logger import logger
 from bra_scraper.utils import parse_value
-from bra_scraper.dataset import Dataset
+from bra_scraper.resultset import ResultSet
 
 
 class Topic(Surfer):
@@ -96,8 +96,8 @@ class Topic(Surfer):
         if isinstance(period_end, str):
             period_end = datetime.strptime(period_end, "%Y-%m-%d")
         
+        results = ResultSet()
 
-        data = []
         queries = []
         region_ids = [x.id for x in self.regions 
             # Filter by regions in query
@@ -167,28 +167,20 @@ class Topic(Surfer):
         self.start_session()
         for i, q in enumerate(queries):
             logger.info("Parse result page %s out of %s" % (i+1, len(queries)))
-            result_page_html = self._get_result_page(
+            result_page_html, notes_page_html = self._get_result_page(
                 q["regions"], q["crimes"], q["periods"])
-            data = data + self._parse_result_page(result_page_html)
+            results.add_data(self._parse_data(result_page_html))
+            notes = self._parse_notes(notes_page_html)
+            for category, note in notes.iteritems():
+                results.add_note(category, note)
 
-        """ Start a fresh session. The result page throws an error if 
-            we don't open the preceeding selection pages
-        """
-        """
-        self._start_session()
-        for i, region_group in enumerate(region_groups):
-            logger.info("Parse result page %s out of %s" % (i+1, len(region_groups)))
-            result_page = self._get_result_page(region_group, crimes, periods)
-            
+        logger.info("Parsed %s datapoints" % len(results.data))
 
-        """
-        logger.info("Parsed %s datapoints" % len(data))
-
-        return Dataset(data)
+        return results
 
 
     def _get_result_page(self,regions, crimes, periods):
-        """ Make a query and return the html of the result page.
+        """ Make a query and return the html of the result and notes page.
         """
         payload = {
             "brottstyp_id_string": "*".join([str(x) for x in  crimes]),
@@ -202,11 +194,16 @@ class Topic(Surfer):
         self.session.get(self.url)
         self.session.post("http://statistik.bra.se/solwebb/action/anmalda/urval/vantapopup", data=payload)
         self.session.get("http://statistik.bra.se/solwebb/action/anmalda/urval/sok")
-        r = self.session.get("http://statistik.bra.se/solwebb/action/anmalda/urval/soktabell")
+        
+        # Get data table
+        r_table = self.session.get("http://statistik.bra.se/solwebb/action/anmalda/urval/soktabell")
 
-        return r.text
+        # Get notes
+        r_notes = self.session.get("http://statistik.bra.se/solwebb/action/anmalda/urval/sokinfo")
 
-    def _parse_result_page(self, page_content):
+        return r_table.text, r_notes.text
+
+    def _parse_data(self, page_content):
         """ Get the datapoints from the result page 
         """
         tree = html.fromstring(page_content)
@@ -239,6 +236,23 @@ class Topic(Surfer):
 
         return data
     
+    def _parse_notes(self, page_content):
+        """ Get all notes related to a datatable
+            :returns (dict): Category name as key, desciption as value
+        """
+        tree = html.fromstring(page_content)
+        wrapper = tree.xpath("//div[@id='infotexter']")[0]
+        categories = [ x.text.strip() for x in wrapper.xpath("span") ]
+        descriptions = [ x.text.strip() for x in wrapper.xpath("div") ]
+
+        from lxml import etree
+        if len(categories) != len(descriptions):
+            raise Exception("Number of note categories and descriptions don't match.") 
+
+        notes = dict(zip(categories, descriptions))
+
+        return notes
+
     def _fetch_html(self):
         """ Get and store the html content of the topic page
             :returns (str): HTML content of the topic page
