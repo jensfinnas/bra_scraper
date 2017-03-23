@@ -9,6 +9,7 @@ from bra_scraper.dimension import Regions, Crimes, Periods
 from bra_scraper.logger import logger
 from bra_scraper.utils import parse_value
 from bra_scraper.resultset import ResultSet
+from bra_scraper.note import Note
 
 
 class Topic(Surfer):
@@ -76,6 +77,14 @@ class Topic(Surfer):
 
         return getattr(self, "_" + name)
 
+    def dimensions(self):
+        """ Returns a list of all dimensions
+        """
+        return [
+            self.dimension("crimes"),
+            self.dimension("regions"),
+            self.dimension("periods"),
+        ]
 
     def query(self, regions="*", crimes="*", period_start="1900-01-01", 
             period_end="2999-1-1", ignore_ceased_regions=True,
@@ -101,14 +110,24 @@ class Topic(Surfer):
         queries = []
         region_ids = [x.id for x in self.regions 
             # Filter by regions in query
-            if (regions=="*" or x.label in regions) and 
+            if (
+                regions=="*" or
+                x.label in regions or 
+                x.label_short in regions ) 
+            and 
             # Remove ceased
-            (not (x.ceased and ignore_ceased_regions))
+            (
+                not (x.ceased and ignore_ceased_regions))
             ]
         crime_ids = [x.id for x in self.crimes 
-            if (crimes=="*" or x.label in crimes) and
+            if (
+                crimes=="*" or
+                x.label in crimes or
+                x.label_short in crimes)
+            and
             # Remove ceased
-            (not (x.ceased and ignore_ceased_crimes))
+            (
+                not (x.ceased and ignore_ceased_crimes) )
             ]
 
         # For 
@@ -169,6 +188,11 @@ class Topic(Surfer):
             logger.info("Parse result page %s out of %s" % (i+1, len(queries)))
             result_page_html, notes_page_html = self._get_result_page(
                 q["regions"], q["crimes"], q["periods"])
+
+            with open("result_page_html_with_missing_values.html" ,'w') as f:
+                
+                f.write(result_page_html.encode("utf-8"))
+
             results.add_data(self._parse_data(result_page_html))
             notes = self._parse_notes(notes_page_html)
             for category, note in notes.iteritems():
@@ -249,15 +273,31 @@ class Topic(Surfer):
         tree = html.fromstring(page_content)
         wrapper = tree.xpath("//div[@id='infotexter']")[0]
         categories = [ x.text.strip() for x in wrapper.xpath("span") ]
-        descriptions = [ x.text.strip() for x in wrapper.xpath("div") ]
+        note_texts = [ x.text.strip() for x in wrapper.xpath("div") ]
 
-        from lxml import etree
-        if len(categories) != len(descriptions):
-            raise Exception("Number of note categories and descriptions don't match.") 
+        if len(categories) != len(note_texts):
+            raise Exception("Number of note categories and note_texts don't match.") 
 
-        notes = dict(zip(categories, descriptions))
+        notes = {}
+
+        for i, note_text in enumerate(note_texts):
+            category = categories[i]
+            dimension = self._dimension_from_category(category)
+
+            note = Note(note_text, category, dimension)
+            notes[category] = note
 
         return notes
+
+    def _dimension_from_category(self, category):
+        """ Return the dimension ot a given cateogry.
+            Eg. "Stockholms län" => Regions
+        """
+        for dim in self.dimensions():
+            if dim.get(category):
+                return dim
+        else:
+            return None
 
     def _fetch_html(self):
         """ Get and store the html content of the topic page
