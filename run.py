@@ -17,11 +17,21 @@ def main():
         'help': """name of the topic to be scraped (from http://statistik.bra.se/solwebb/action/start?menykatalogid=1)""",
         'default': 'Månads- och kvartalsvis - Kommun och storstädernas stadsdelar 1996-',
     }, {
+        'short': "-r", "long": "--regions",
+        'dest': "regions",
+        'type': str,
+        'help': """a comma seprated list of regions to query by""",
+    }, {
         'short': "-o", "long": "--outfile",
         'dest': "outfile",
         'type': str,
-        'help': """store result in this file""",
+        'help': """store result in this csv file""",
         'required': True,
+    }, {
+        'short': "-n", "long": "--notes",
+        'dest': "notes",
+        'type': str,
+        'help': """store notes in this csv file"""
     }, {
         'short': "-ps", "long": "--period_start",
         'dest': "period_start",
@@ -35,21 +45,41 @@ def main():
         'type': str,
         'help': """end date (for example 2016-09-01)"""
     }]
-    ui = Interface("Parse Alarm",
-                   "Evaluate an alarm, and prepare data for a report",
+    ui = Interface("Run scraper",
+                   "Fetch data from command line",
                    commandline_args=cmd_args)
 
+
+    # Init
     scraper = BRA()
     topic_name = unicode(ui.args.topic, "utf-8")
     topic = scraper.topic(topic_name)
+
+    # Make query
+    if not ui.args.regions:
+        regions = "*"
+    else:
+        regions = ui.args.regions.decode("utf-8").split(",")
+
     result = topic.query(
         period_start=ui.args.period_start,
         period_end=ui.args.period_end,
+        regions=regions,
         )
     
-    result.data.to_csv(ui.args.outfile)
+    # Store data
+    data_file_path = ui.args.outfile
+    result.data.to_csv(data_file_path)
 
+    #
+    if not ui.args.notes:
+        # If note path not defined, write to "mydata_notes.csv" (if "mydata.csv" is data path)
+        notes_file = data_file_path.replace(".csv", "_notes.csv")
+    else:
+        notes_file = ui.args.notes
 
+    if result.notes:
+        result.notes.to_csv(notes_file)
 
 if __name__ == '__main__':
     main()
