@@ -16,7 +16,16 @@ class Category(object):
     def __init__(self, id, label):
         self.id = id
         self.label = label
+        self._label_short = label.split(",")[-1].strip()
         self._parent = None
+
+    @property
+    def label_short(self):
+        """ Get the last part of a long label.
+            Eg. "Hela landet, Stockholms län" => "Stockholms län"
+        """
+        return self._label_short
+    
 
     @property
     def parent(self):

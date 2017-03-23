@@ -31,13 +31,33 @@ class Dimension(Surfer):
     def list(self):
         return self.categories
 
-    def get(self, id):
-        """ Get category by id
+    def get(self, id_or_label):
+        """ Get category by id or label
             :returns (Category): 
         """
         try:
-            return self._categories[id]
+            # 1) try id
+            return self._categories[id_or_label]
         except KeyError:
+            pass
+
+        # 2) try label
+        for cat in self.categories:
+            if cat.label == id_or_label:
+                return cat
+
+        # 3) try end of label
+        for cat in self.categories:
+            # Labels are long an over explicit, like 
+            # "Hela landet, Stockholms län"
+            # Hence we check if the end of the label 
+            # matches. Eg. "Stockholms län"
+            n_chars = len(id_or_label)
+            if cat.label[-n_chars:] == id_or_label:
+                return cat
+
+        # 4) No match
+        else:
             return None
 
     def to_csv(self, file_path):
@@ -119,6 +139,7 @@ class Dimension(Surfer):
 class Regions(Dimension):
     """ Represents the regional dimension"""
     def __init__(self, html=None, url=None):
+        self.name = "regions"
         # The id used in the html code
         self._var_name = "arrayRegionNiva[Ett|Tva]{3}"
         self._category_class = Region 
@@ -128,6 +149,7 @@ class Regions(Dimension):
 class Crimes(Dimension):
     """ Represents represents the crime"""
     def __init__(self, html=None, url=None):
+        self.name = "crimes"
         # The id used in the html code
         self._var_name = "arrayNiva[ett|tva]{3}" # Not the best regex
         self._category_class = Category 
@@ -138,6 +160,7 @@ class Crimes(Dimension):
 class Periods(Dimension):
     """ Represents the time dimension"""
     def __init__(self, html=None, url=None):
+        self.name = "periods"
         # The id used in the html code
         self._var_name = "arrayPeriod"
         self._category_class = Period 
