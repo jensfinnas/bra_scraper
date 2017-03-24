@@ -51,7 +51,7 @@ def main():
 
 
     # Init
-    scraper = BRA()
+    scraper = BRA(logger=ui)
     topic_name = unicode(ui.args.topic, "utf-8")
     topic = scraper.topic(topic_name)
 

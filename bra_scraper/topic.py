@@ -6,7 +6,6 @@ from lxml import html
 
 from bra_scraper.surfer import Surfer
 from bra_scraper.dimension import Regions, Crimes, Periods
-from bra_scraper.logger import logger
 from bra_scraper.utils import parse_value
 from bra_scraper.resultset import ResultSet
 from bra_scraper.note import Note
@@ -15,8 +14,8 @@ from bra_scraper.note import Note
 class Topic(Surfer):
     """ Represents a topic on the BRÅ site
     """
-    def __init__(self, label, url, description=None):
-        super(Topic, self).__init__()
+    def __init__(self, label, url, description=None, **kwargs):
+        super(Topic, self).__init__(**kwargs)
         self.label = label
         self.menu_id = url.split("=")[-1]
         self.url = self.INTERFACE_URL + "anmalda/urval/urval?menyid=" + self.menu_id
@@ -152,10 +151,10 @@ class Topic(Surfer):
         n_periods = len(period_ids)
         n_datapoints = n_regions * n_crimes * n_periods
 
-        logger.info(u"Making query of {} regions, {} crimes and {} periods in {}."\
+        self.log.info(u"Making query of {} regions, {} crimes and {} periods in {}."\
             .format(n_regions, n_crimes, n_periods, self.label))
 
-        logger.info(u"Getting expected {} datapoints"\
+        self.log.info(u"Getting expected {} datapoints"\
             .format(n_datapoints))
 
 
@@ -185,7 +184,7 @@ class Topic(Surfer):
         # Perform the actual requests
         self.start_session()
         for i, q in enumerate(queries):
-            logger.info("Parse result page %s out of %s" % (i+1, len(queries)))
+            self.log.info("Parse result page %s out of %s" % (i+1, len(queries)))
             result_page_html, notes_page_html = self._get_result_page(
                 q["regions"], q["crimes"], q["periods"])
 
@@ -198,7 +197,7 @@ class Topic(Surfer):
             for category, note in notes.iteritems():
                 results.add_note(category, note)
 
-        logger.info("Parsed %s datapoints" % len(results.data))
+        self.log.info("Parsed %s datapoints" % len(results.data))
 
         return results
 
