@@ -70,6 +70,7 @@ def main():
     # Store data
     data_file_path = ui.args.outfile
     result.data.to_csv(data_file_path)
+    ui.info(u"Writing to {}".format(unicode(data_file_path,"utf-8")))
 
     #
     if not ui.args.notes:

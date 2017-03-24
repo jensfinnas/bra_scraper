@@ -1,5 +1,4 @@
 # encoding: utf-8
-from bra_scraper.logger import logger
 import csvkit as csv
 
 class ResultSet(object):
@@ -55,7 +54,6 @@ class Dataset(list):
         Basically a wrapper around Python's native list class.
     """
     def to_csv(self, path):
-        logger.info(u"Writing to {}".format(unicode(path,"utf-8")))
         return self.dataframe.to_csv(path, encoding="utf-8")
 
     @property

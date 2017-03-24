@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import requests
-from bra_scraper.logger import logger
 
 BASE_URL = "http://statistik.bra.se/"
 INTERFACE_URL = BASE_URL + "solwebb/action/"
@@ -9,10 +8,14 @@ INTERFACE_URL = BASE_URL + "solwebb/action/"
 class Surfer(object):
     """ Common functions for handling sessions etc on the BRÅ site
     """
-    def __init__(self, logger=logger):
+    def __init__(self, logger=None):
+        """ :param: 
+        """
         self.session = None
         self.BASE_URL = BASE_URL
         self.INTERFACE_URL = INTERFACE_URL
+        if logger is None:
+            logger = SilentLogger()
         self.logger = logger
 
     def start_session(self):
@@ -27,4 +30,25 @@ class Surfer(object):
     @property
     def log(self):
         return self.logger
-    
+
+class SilentLogger():
+    """ Empyt "fake" logger
+    """
+
+    def log(self, msg, *args, **kwargs):
+        pass
+
+    def debug(self, msg, *args, **kwargs):
+        pass
+
+    def info(self, msg, *args, **kwargs):
+        pass
+
+    def warning(self, msg, *args, **kwargs):
+        pass
+
+    def error(self, msg, *args, **kwargs):
+        pass
+
+    def critical(self, msg, *args, **kwargs):
+        pass
