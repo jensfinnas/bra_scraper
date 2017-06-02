@@ -10,4 +10,4 @@ test: clean-pyc
 
 deploy:
 	git push origin master
-	python setup.py sdist upload -r pypitest
+	python setup.py sdist upload -r pypi
