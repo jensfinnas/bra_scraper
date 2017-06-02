@@ -7,3 +7,7 @@ tests: clean-pyc
 
 test: clean-pyc
 	PYTHONPATH=. py.test $(file) --verbose
+
+deploy:
+	git push origin master
+	python setup.py sdist upload -r pypitest
