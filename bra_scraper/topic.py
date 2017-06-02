@@ -40,7 +40,7 @@ class Topic(Surfer):
                 raise ValueError(msg.encode("utf-8"))
 
         return self._level
-    
+
     @property
     def regions(self):
         return self.dimension("regions").categories
@@ -66,7 +66,7 @@ class Topic(Surfer):
         if name not in dim_classes.keys():
             raise Exception("{} is not a valid dimension. Options are {}."\
                     .format(name, ",".join(dim_classes.keys())))
-        
+
         if not self._html:
             self._fetch_html()
 
@@ -85,7 +85,7 @@ class Topic(Surfer):
             self.dimension("periods"),
         ]
 
-    def query(self, regions="*", crimes="*", period_start="1900-01-01", 
+    def query(self, regions="*", crimes="*", period_start="1900-01-01",
             period_end="2999-1-1", ignore_ceased_regions=True,
             ignore_ceased_crimes=True):
         """ Get the data for a set of region, crime and period ids.
@@ -103,22 +103,22 @@ class Topic(Surfer):
             period_start = datetime.strptime(period_start, "%Y-%m-%d")
         if isinstance(period_end, str):
             period_end = datetime.strptime(period_end, "%Y-%m-%d")
-        
+
         results = ResultSet()
 
         queries = []
-        region_ids = [x.id for x in self.regions 
+        region_ids = [x.id for x in self.regions
             # Filter by regions in query
             if (
                 regions=="*" or
-                x.label in regions or 
-                x.label_short in regions ) 
-            and 
+                x.label in regions or
+                x.label_short in regions )
+            and
             # Remove ceased
             (
                 not (x.ceased and ignore_ceased_regions))
             ]
-        crime_ids = [x.id for x in self.crimes 
+        crime_ids = [x.id for x in self.crimes
             if (
                 crimes=="*" or
                 x.label in crimes or
@@ -129,8 +129,8 @@ class Topic(Surfer):
                 not (x.ceased and ignore_ceased_crimes) )
             ]
 
-        # For 
-        period_ids = [x.id for x in self.periods 
+        # For
+        period_ids = [x.id for x in self.periods
             if (
                 (
                     # Pick up yearly and quarterly data
@@ -138,12 +138,12 @@ class Topic(Surfer):
                     # - 2016 (whole year)
                     # - 2016, Q4
                     # - 2016, December
-                    x.in_range(period_start) 
-                    or 
+                    x.in_range(period_start)
+                    or
                     x.period_start >= period_start
-                ) 
+                )
                 and x.period_end <= period_end)]
-        
+
         # We can query a maximum of 10 000 datapoints at a time.
         threshold = 10000.0
         n_regions = len(region_ids)
@@ -188,10 +188,6 @@ class Topic(Surfer):
             result_page_html, notes_page_html = self._get_result_page(
                 q["regions"], q["crimes"], q["periods"])
 
-            with open("result_page_html_with_missing_values.html" ,'w') as f:
-                
-                f.write(result_page_html.encode("utf-8"))
-
             results.add_data(self._parse_data(result_page_html))
             notes = self._parse_notes(notes_page_html)
             for category, note in notes.iteritems():
@@ -210,14 +206,14 @@ class Topic(Surfer):
             "region_id_string": "*".join([str(x) for x in regions]),
             "period_id_string": "*".join([str(x) for x in periods]),
             "antal_100k":0,
-            "antal":1    
+            "antal":1
         }
 
         # Make the search
         self.session.get(self.url)
         self.session.post("http://statistik.bra.se/solwebb/action/anmalda/urval/vantapopup", data=payload)
         self.session.get("http://statistik.bra.se/solwebb/action/anmalda/urval/sok")
-        
+
         # Get data table
         r_table = self.session.get("http://statistik.bra.se/solwebb/action/anmalda/urval/soktabell")
 
@@ -227,16 +223,16 @@ class Topic(Surfer):
         return r_table.text, r_notes.text
 
     def _parse_data(self, page_content):
-        """ Get the datapoints from the result page 
+        """ Get the datapoints from the result page
         """
         tree = html.fromstring(page_content)
         data = []
 
-        """ Luckily the value cells all have the same class name 
+        """ Luckily the value cells all have the same class name
         """
         for td in tree.xpath("//td[@class='resultatAntal']"):
             ids = td.get("headers").split(" ")
-            
+
             if len(ids) == 1:
                 # Empty rows
                 continue
@@ -264,7 +260,7 @@ class Topic(Surfer):
             data.append(datapoint)
 
         return data
-    
+
     def _parse_notes(self, page_content):
         """ Get all notes related to a datatable
             :returns (dict): Category name as key, desciption as value
@@ -275,7 +271,7 @@ class Topic(Surfer):
         note_texts = [ x.text.strip() for x in wrapper.xpath("div") ]
 
         if len(categories) != len(note_texts):
-            raise Exception("Number of note categories and note_texts don't match.") 
+            raise Exception("Number of note categories and note_texts don't match.")
 
         notes = {}
 
