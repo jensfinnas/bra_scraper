@@ -5,7 +5,7 @@ from setuptools import setup
 
 
 setup(name='bra_scraper',
-      version='0.1.6',
+      version='0.1.7',
       description=u'An interface for fetching statistical data from BRÅ. This is not an official service!',
       url='https://github.com/jensfinnas/bra_scraper',
       author='Jens Finnäs',
