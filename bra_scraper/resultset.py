@@ -28,7 +28,7 @@ class ResultSet(object):
     def add_note(self, category, note):
         """ Add a note to a category.
             One category can have multiple (but not identical notes)
-        
+
             :param category (str): Name of category
             :param note (Note): The note as a Note instance
         """
@@ -39,14 +39,14 @@ class ResultSet(object):
             self._notes[category].append(note)
 
     def note(self, category):
-        """ Get a note for a category value (a crime name 
+        """ Get a note for a category value (a crime name
             or region for example)
         """
         try:
             return self._notes[category]
         except:
             raise KeyError(u"There is no note for {}.".format(category))
-    
+
 
 
 class Dataset(list):
@@ -60,7 +60,7 @@ class Dataset(list):
     def dataframe(self):
         import pandas as pd
         return pd.DataFrame(self.dictlist)
-    
+
 
     @property
     def dictlist(self):
@@ -75,11 +75,13 @@ class Dataset(list):
                 "region_id": row["region"].id,
                 "crime": row["crime"].label,
                 "crime_id": row["crime"].id,
+                "measure": row["measure"].label,
+                "measure_id": row["measure"].id,
                 "value": row["value"],
                 "status": row["status"],
                 })
         return _dictlist
-    
+
     def as_dictlist(self):
         return self
 
@@ -112,7 +114,7 @@ class Notes(dict):
                     })
 
         return _dictlist
-    
+
 
     def to_csv(self, path):
         """ Export to csv based on `.to_dictlist()` representation
@@ -130,7 +132,3 @@ class Notes(dict):
             w = csv.DictWriter(f, data[0].keys())
             w.writeheader()
             w.writerows(data)
-
-
-
-

@@ -7,7 +7,7 @@ from bra_scraper.category import Category, Period, Region
 
 
 class Dimension(Surfer):
-    """ A base class for dimensions in the BRÅ database 
+    """ A base class for dimensions in the BRÅ database
         (Region, Crime, Period)
     """
     def __init__(self, html=None, url=None):
@@ -20,20 +20,20 @@ class Dimension(Surfer):
             html = self._fetch_html()
         self._html = html
         # Store all categories in a dict with id as key
-        self._categories = self._parse_categories(html) 
-        # The id as described in html code, used for parsing categories 
+        self._categories = self._parse_categories(html)
+        # The id as described in html code, used for parsing categories
         self._id = None
 
     @property
     def categories(self):
         return self._categories.values()
-    
+
     def list(self):
         return self.categories
 
     def get(self, id_or_label):
         """ Get category by id or label
-            :returns (Category): 
+            :returns (Category):
         """
         try:
             # 1) try id
@@ -48,9 +48,9 @@ class Dimension(Surfer):
 
         # 3) try end of label
         for cat in self.categories:
-            # Labels are long an over explicit, like 
+            # Labels are long an over explicit, like
             # "Hela landet, Stockholms län"
-            # Hence we check if the end of the label 
+            # Hence we check if the end of the label
             # matches. Eg. "Stockholms län"
             n_chars = len(id_or_label)
             if cat.label[-n_chars:] == id_or_label:
@@ -73,18 +73,18 @@ class Dimension(Surfer):
                     parent = category.parent.id
                 else:
                     parent = None
-                row = [ 
+                row = [
                     category.id,
                     category.label,
                     parent,
                 ]
                 writer.writerow(row)
- 
+
     def _parse_categories(self, html):
         """ Get categories from HTML code of topic page.
             :param html (str): HTML code of topic page
             :returns: A dict with category id's as keys and
-                category instances as values. 
+                category instances as values.
         """
         _categories = {}
         regex_str = r'{}\[\d+\]="(.+)"'.format(self._var_name)
@@ -107,11 +107,11 @@ class Dimension(Surfer):
 
     def _parse_category_string(self, category_string):
         """ Parse id, label and parent of category from strings.
-            
+
             :param category_string (str): For example "8292*Blekinge län*8292*Hela landet, Blekinge län"
             :returns (list): A list with [id, label, parent_id]
         """
-         
+
         _parts = category_string.split("*")
         id = int(_parts[0])
 
@@ -119,7 +119,7 @@ class Dimension(Surfer):
             label = _parts[3]
         else:
             label = _parts[1].replace("\\xA0","")
-        
+
         if len(_parts) > 2:
             parent_id = int(_parts[2])
         else:
@@ -142,7 +142,7 @@ class Regions(Dimension):
         self.name = "regions"
         # The id used in the html code
         self._var_name = "arrayRegionNiva[Ett|Tva]{3}"
-        self._category_class = Region 
+        self._category_class = Region
         super(Regions, self).__init__(html=html, url=url)
 
 
@@ -152,7 +152,7 @@ class Crimes(Dimension):
         self.name = "crimes"
         # The id used in the html code
         self._var_name = "arrayNiva[ett|tva]{3}" # Not the best regex
-        self._category_class = Category 
+        self._category_class = Category
 
         super(Crimes, self).__init__(html=html, url=url)
 
@@ -163,7 +163,7 @@ class Periods(Dimension):
         self.name = "periods"
         # The id used in the html code
         self._var_name = "arrayPeriod"
-        self._category_class = Period 
+        self._category_class = Period
 
         super(Periods, self).__init__(html=html, url=url)
 
@@ -177,3 +177,12 @@ class Periods(Dimension):
         parent = None
         return id, label, parent
 
+class Measures(Dimension):
+    """Represents the measure (count or per capita)"""
+    name = "measures"
+
+    def _parse_categories(self, html):
+        return {
+            "count": Category("count", "Antal"),
+            "per capita": Category("per capita", "Per 10 000 invånare"),
+        }
