@@ -46,6 +46,8 @@ data = topic.query(period_start="2016-01-01", period_end="2016-06-30")
 # Query by region and crimes
 data = topic.query(regions=["Bjuv kommun"], crimes=[u"Våldsbrott"])
 
+# Query by measure
+data = topic.query(regions=["Hela riket"], measures=["count", "per capita"])
 ```
 
 Save results.
