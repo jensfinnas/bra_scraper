@@ -1,6 +1,6 @@
 # BRÅ Scraper
 
-This is a Python module for fetching statistical data about reported crime from [Brottsförbyggande rådet](http://statistik.bra.se/solwebb/action/index).
+This is a Python module for fetching statistical data about reported crime from [Brottsförebyggande rådet](http://statistik.bra.se/solwebb/action/index).
 
 ### Installation
 
