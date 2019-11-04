@@ -14,7 +14,7 @@ setup(name='bra_scraper',
       packages=['bra_scraper'],
       include_package_data=True,
       install_requires=[
-            "requests==2.11.1",
+            "requests==2.20.0",
             "wsgiref==0.1.2"
       ],
       zip_safe=False)
