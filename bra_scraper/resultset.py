@@ -1,5 +1,5 @@
 # encoding: utf-8
-import csvkit as csv
+import csv
 
 class ResultSet(object):
     """ Represents the response you get from a query

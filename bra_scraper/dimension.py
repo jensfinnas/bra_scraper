@@ -1,7 +1,7 @@
 # encoding: utf-8
 import requests
 import re
-import csvkit as csv
+import csv
 from bra_scraper.surfer import Surfer
 from bra_scraper.category import Category, Period, Region
 

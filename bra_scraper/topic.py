@@ -218,7 +218,7 @@ class Topic(Surfer):
 
             results.add_data(self._parse_data(result_page_html))
             notes = self._parse_notes(notes_page_html)
-            for category, note in notes.iteritems():
+            for category, note in notes.items():
                 results.add_note(category, note)
 
         self.log.info("Parsed %s datapoints" % len(results.data))

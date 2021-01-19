@@ -46,7 +46,7 @@ class Category(object):
 
     
     def __repr__(self):
-        return u"<Category: {}>".format(self.label).encode("utf-8")
+        return u"<Category: {}>".format(self.label)
                         
 
 MONTHS = ("Jan","Feb","Mar","Apr","Maj","Jun","Jul","Aug","Sep",

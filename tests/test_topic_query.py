@@ -9,7 +9,7 @@ def test_query(get_topic):
         regions="Hela landet",
         period_start="2016-01-01",
         period_end="2016-12-31",
-        crimes="Sexualbrott",
+        crimes='Brott mot brottsbalken, 3-7 kap. Brott mot person, 6 kap. Sexualbrott',
         measures="*",
     )
 
