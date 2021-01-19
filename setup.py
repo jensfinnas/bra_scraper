@@ -2,10 +2,13 @@
 
 from setuptools import setup
 
+# Get current version
+with open("VERSION.txt") as f:
+    version = f.read().strip()
 
 
 setup(name='bra_scraper',
-      version='0.1.8',
+      version=version,
       description=u'An interface for fetching statistical data from BRÅ. This is not an official service!',
       url='https://github.com/jensfinnas/bra_scraper',
       author='Jens Finnäs',

@@ -6,4 +6,4 @@ with open("VERSION.txt") as f:
     version = f.read().strip()
 
 call(["python3", "setup.py", "sdist", "bdist_wheel"])
-call(["python3", "-m", "twine", "upload", "dist/siris_scraper-{}*".format(version)])
+call(["python3", "-m", "twine", "upload", "dist/bra_scraper-{}*".format(version)])
