@@ -215,7 +215,6 @@ class Topic(Surfer):
             self.log.info("Parse result page %s out of %s" % (i+1, len(queries)))
             result_page_html, notes_page_html = self._get_result_page(
                 q["regions"], q["crimes"], q["periods"], q["measures"])
-
             results.add_data(self._parse_data(result_page_html))
             notes = self._parse_notes(notes_page_html)
             for category, note in notes.items():
@@ -244,17 +243,16 @@ class Topic(Surfer):
         else:
             payload["antal_100k"] = 0
 
-
         # Make the search
         self.session.get(self.url)
-        self.session.post("http://statistik.bra.se/solwebb/action/anmalda/urval/vantapopup", data=payload)
-        self.session.get("http://statistik.bra.se/solwebb/action/anmalda/urval/sok")
+        self.session.post("https://statistik.bra.se/solwebb/action/anmalda/urval/vantapopup", data=payload)
+        self.session.get("https://statistik.bra.se/solwebb/action/anmalda/urval/sok")
 
         # Get data table
-        r_table = self.session.get("http://statistik.bra.se/solwebb/action/anmalda/urval/soktabell")
+        r_table = self.session.get("https://statistik.bra.se/solwebb/action/anmalda/urval/soktabell")
 
         # Get notes
-        r_notes = self.session.get("http://statistik.bra.se/solwebb/action/anmalda/urval/sokinfo")
+        r_notes = self.session.get("https://statistik.bra.se/solwebb/action/anmalda/urval/sokinfo")
 
         return r_table.text, r_notes.text
 
