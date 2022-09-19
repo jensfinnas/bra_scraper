@@ -2,7 +2,7 @@
 
 import requests
 
-BASE_URL = "http://statistik.bra.se/"
+BASE_URL = "https://statistik.bra.se/"
 INTERFACE_URL = BASE_URL + "solwebb/action/"
 
 class Surfer(object):
