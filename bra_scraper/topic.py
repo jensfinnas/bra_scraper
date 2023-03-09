@@ -316,8 +316,10 @@ class Topic(Surfer):
         for i, note_text in enumerate(note_texts):
             category = categories[i]
             dimension = self._dimension_from_category(category)
-
-            note = Note(note_text, category, dimension)
+            try:
+                note = Note(note_text, category, dimension)
+            except:
+                note = None
             notes[category] = note
 
         return notes
