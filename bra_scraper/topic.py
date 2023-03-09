@@ -244,15 +244,15 @@ class Topic(Surfer):
             payload["antal_100k"] = 0
 
         # Make the search
-        self.session.get(self.url)
-        self.session.post("https://statistik.bra.se/solwebb/action/anmalda/urval/vantapopup", data=payload)
-        self.session.get("https://statistik.bra.se/solwebb/action/anmalda/urval/sok")
+        self.session.get(self.url, verify=False)
+        self.session.post("https://statistik.bra.se/solwebb/action/anmalda/urval/vantapopup", data=payload, verify=False)
+        self.session.get("https://statistik.bra.se/solwebb/action/anmalda/urval/sok", verify=False)
 
         # Get data table
-        r_table = self.session.get("https://statistik.bra.se/solwebb/action/anmalda/urval/soktabell")
+        r_table = self.session.get("https://statistik.bra.se/solwebb/action/anmalda/urval/soktabell", verify=False)
 
         # Get notes
-        r_notes = self.session.get("https://statistik.bra.se/solwebb/action/anmalda/urval/sokinfo")
+        r_notes = self.session.get("https://statistik.bra.se/solwebb/action/anmalda/urval/sokinfo", verify=False)
 
         return r_table.text, r_notes.text
 
@@ -337,7 +337,7 @@ class Topic(Surfer):
             :returns (str): HTML content of the topic page
         """
         self.start_session()
-        r = self.session.get(self.url)
+        r = self.session.get(self.url, verify=False)
         self._html = r.text
         return self._html
 

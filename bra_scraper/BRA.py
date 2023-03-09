@@ -15,7 +15,7 @@ class BRA(Surfer):
             :returns (list): A list of Topic instances 
         """
         _topics = []
-        r = requests.get(self.BASE_URL + "solwebb/action/start?menykatalogid=1")
+        r = requests.get(self.BASE_URL + "solwebb/action/start?menykatalogid=1", verify=False)
         _html = r.content
         _tree = html.fromstring(_html)
         links = _tree.xpath("//li[@class='menySol']/a")

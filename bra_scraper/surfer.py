@@ -24,8 +24,8 @@ class Surfer(object):
         """
         self.log.info("Start new session")
         self.session = requests.session()
-        self.session.get(INTERFACE_URL)
-        self.session.get(INTERFACE_URL + "/start?menykatalogid=1")
+        self.session.get(INTERFACE_URL, verify=False)
+        self.session.get(INTERFACE_URL + "/start?menykatalogid=1", verify=False)
 
     @property
     def log(self):

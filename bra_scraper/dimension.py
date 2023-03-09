@@ -133,7 +133,7 @@ class Dimension(Surfer):
             :returns (str): HTML content of the topic page
         """
         self.start_session()
-        r = self.session.get(self.url)
+        r = self.session.get(self.url, verify=False)
         return r.text
 
 class Regions(Dimension):
